@@ -9,7 +9,8 @@ export class BootScene extends Phaser.Scene {
   
     create() {
       // Initialize the game state here
-      this.scene.start('GameScene'); // Start the next scene
+      this.add.text(20, 20, "Booting Game...");
+      this.scene.start('MenuScene'); // Start the next scene
     }
   }
   

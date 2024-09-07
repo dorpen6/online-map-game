@@ -1,6 +1,6 @@
-export class GameScene extends Phaser.Scene {
+export class MenuScene extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' }) 
+        super({ key: 'MenuScene' }) 
     }
 
     create() {
