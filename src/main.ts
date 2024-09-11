@@ -123,13 +123,25 @@ class MyGame extends Phaser.Scene {
     
     movePlayerToDestination(): void {
         if (this.destination) {
-            // Stop any previous movement
-            this.player.setVelocity(0);
-            // Move player to the destination
-            this.physics.moveTo(this.player, this.destination.x, this.destination.y, this.moveSpeed);
+            // Calculate the exact distance between the player and the destination
+            const distance = Phaser.Math.Distance.Between(
+                this.player.x, this.player.y,
+                this.destination.x, this.destination.y
+            );
+    
+            // If distance is greater than a small threshold, move the player
+            if (distance > 1) {
+                this.player.setVelocity(0); // Reset player velocity
+                this.physics.moveTo(this.player, this.destination.x, this.destination.y, this.moveSpeed);
+            } else {
+                // Stop the player exactly at the destination
+                this.player.setPosition(this.destination.x, this.destination.y);
+                this.player.setVelocity(0);
+                this.destination = undefined; // Clear the destination
+            }
         }
     }
-
+    
     update(): void {
         if (this.destination) {
             const distance = Phaser.Math.Distance.Between(
