@@ -4,6 +4,7 @@ export default class MyGame extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
     private bullets!: Phaser.Physics.Arcade.Group;
     private isShooting: boolean = false;
+    private zoomScale: number = 1; // Initial zoom scale
 
     constructor() {
         super({ key: 'MyGame' });
@@ -35,6 +36,9 @@ export default class MyGame extends Phaser.Scene {
                 this.isShooting = false;
             }
         });
+
+        // Add mouse wheel listener
+        this.input.on('wheel', this.handleMouseWheel, this);
     }
 
     update(): void {
@@ -67,5 +71,13 @@ export default class MyGame extends Phaser.Scene {
             bullet.setVisible(false);
             bullet.setPosition(-100, -100); // Move bullet offscreen
         });
+    }
+
+    private handleMouseWheel(event: WheelEvent): void {
+        const zoomSpeed = 0.1; // Zoom speed multiplier
+        const delta = event.deltaY > 0 ? -zoomSpeed : zoomSpeed; // Determine zoom direction
+
+        this.zoomScale = Phaser.Math.Clamp(this.zoomScale + delta, 0.5, 2); // Clamp zoom between 0.5x and 2x
+        this.cameras.main.setZoom(this.zoomScale);
     }
 }
