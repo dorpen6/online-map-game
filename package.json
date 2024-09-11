@@ -9,10 +9,12 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/socket.io-client": "^1.4.36",
     "typescript": "^5.5.3",
     "vite": "^5.4.1"
   },
   "dependencies": {
-    "phaser": "^3.85.1"
+    "phaser": "^3.85.1",
+    "socket.io-client": "^4.7.5"
   }
 }
