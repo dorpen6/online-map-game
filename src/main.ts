@@ -9,6 +9,10 @@ class MyGame extends Phaser.Scene {
     private minZoom: number = 0.5;
     private maxZoom: number = 2.0;
     private destination?: Phaser.Math.Vector2;
+    private isShooting: boolean = false;
+    private audioContext: AudioContext | null = null;
+    private moveSpeed: number = 240; // Speed of player movement
+    private bulletSpeed: number = 400; // Speed of bullet movement
 
     constructor() {
         super({ key: 'MyGame' });
@@ -42,6 +46,9 @@ class MyGame extends Phaser.Scene {
                 this.destination = new Phaser.Math.Vector2(pointer.x, pointer.y);
                 this.movePlayerToDestination();
             }
+
+            // Resume AudioContext on user gesture
+            this.resumeAudioContext();
         });
 
         if (this.input.mouse) {
@@ -61,44 +68,65 @@ class MyGame extends Phaser.Scene {
         });
 
         this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-            this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y });
+            if (this.player) {
+                this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y });
+            }
         });
+
+        // Initialize AudioContext
+        this.initAudioContext();
     }
 
-    handlePointerDown(pointer: Phaser.Input.Pointer): void {
-        if (pointer.rightButtonDown()) {
-            this.fireBullet(pointer);
-        } else {
-            this.destination = new Phaser.Math.Vector2(pointer.x, pointer.y);
-            this.movePlayerToDestination();
+    initAudioContext(): void {
+        // Do not create AudioContext here to avoid creating it before user interaction
+    }
+
+    resumeAudioContext(): void {
+        if (!this.audioContext) {
+            // Create an AudioContext if not already created
+            this.audioContext = new (window as any).AudioContext();
+        }
+
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                console.log('AudioContext resumed');
+            }).catch((error) => {
+                console.error('Error resuming AudioContext:', error);
+            });
         }
     }
 
     fireBullet(pointer: Phaser.Input.Pointer): void {
         const bullet = this.bullets.get(this.player.x, this.player.y) as Phaser.Physics.Arcade.Sprite;
-
+    
         if (bullet) {
-            const bulletBody = bullet.body;
+            bullet.setActive(true);
+            bullet.setVisible(true);
+            bullet.setVelocity(0); // Reset bullet velocity
+    
+            // Ensure bullet.body is not null
+            const bulletBody = bullet.body as Phaser.Physics.Arcade.Body | null;
             if (bulletBody) {
-                bullet.setActive(true);
-                bullet.setVisible(true);
-                bullet.setVelocity(0);
-
+                // Calculate the bullet's scale
                 const playerScale = this.player.displayWidth / this.player.width;
                 bullet.setScale(playerScale / 4);
-
+    
+                // Calculate the angle between the player and the click position
                 const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, pointer.x, pointer.y);
-                const speed = 400;
-
+    
+                // Set bullet direction and speed
                 bullet.setAngle(Phaser.Math.RadToDeg(angle));
-                this.physics.velocityFromRotation(angle, speed, bulletBody.velocity);
+                this.physics.velocityFromRotation(angle, this.bulletSpeed, bulletBody.velocity);
             }
         }
     }
-
+    
     movePlayerToDestination(): void {
         if (this.destination) {
-            this.physics.moveToObject(this.player, this.destination, 240);
+            // Stop any previous movement
+            this.player.setVelocity(0);
+            // Move player to the destination
+            this.physics.moveTo(this.player, this.destination.x, this.destination.y, this.moveSpeed);
         }
     }
 
@@ -109,6 +137,7 @@ class MyGame extends Phaser.Scene {
                 this.destination.x, this.destination.y
             );
 
+            // Stop player when close to the destination
             if (distance < 4) {
                 this.player.setVelocity(0);
                 this.destination = undefined;
