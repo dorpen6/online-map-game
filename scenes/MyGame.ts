@@ -6,7 +6,12 @@ export default class MyGame extends Phaser.Scene {
     private isShooting: boolean = false;
     private zoomScale: number = 1; // Initial zoom scale
     private grid!: Phaser.GameObjects.TileSprite;
-    private cursors?: Phaser.Types.Input.Keyboard.CursorKeys; // Optionally defined cursors
+    private cursors?: {
+        up: Phaser.Input.Keyboard.Key;
+        down: Phaser.Input.Keyboard.Key;
+        left: Phaser.Input.Keyboard.Key;
+        right: Phaser.Input.Keyboard.Key;
+    }; // WASD keys for movement
 
     constructor() {
         super({ key: 'MyGame' });
@@ -66,22 +71,22 @@ export default class MyGame extends Phaser.Scene {
         // Add player and bullets
         this.player = this.physics.add.sprite(400, 300, 'player');
         this.player.setCollideWorldBounds(true);
-
+    
         // Set player bounds based on camera bounds
         this.physics.world.setBounds(0, 0, width, height);
-
+    
         this.bullets = this.physics.add.group({
             defaultKey: 'bullet',
             maxSize: 10
         });
-
+    
         // Add player to the camera
         this.cameras.main.startFollow(this.player, true, 0.5, 0.5);
-
+    
         // Draw deadline corner line
         this.add.rectangle(width - 5, height - 5, 10, 10, 0xff0000, 1)
             .setOrigin(1, 1);
-
+    
         // Set up input events
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             if (pointer.rightButtonDown()) {
@@ -97,12 +102,18 @@ export default class MyGame extends Phaser.Scene {
         });
     
         this.input.on('wheel', this.handleMouseWheel, this);
-
-        // Initialize cursor keys
-this.cursors = this.input.keyboard?.createCursorKeys();
-        // Check if cursors is defined before accessing it
+    
+        // Initialize WASD keys, checking for input keyboard existence
+        if (this.input.keyboard) {
+            this.cursors = {
+                up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+                down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+                left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+                right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            };
+        }
     }
-        
+    
     update(): void {
         if (this.isShooting) {
             const pointer = this.input.activePointer;
@@ -111,8 +122,8 @@ this.cursors = this.input.keyboard?.createCursorKeys();
 
         if (this.cursors) {
             const speed = 200; // Movement speed
-    
-            // Move player with arrow keys
+
+            // Move player with WASD keys
             if (this.cursors.left.isDown) {
                 this.player.setVelocityX(-speed);
             } else if (this.cursors.right.isDown) {
@@ -120,7 +131,7 @@ this.cursors = this.input.keyboard?.createCursorKeys();
             } else {
                 this.player.setVelocityX(0);
             }
-    
+
             if (this.cursors.up.isDown) {
                 this.player.setVelocityY(-speed);
             } else if (this.cursors.down.isDown) {
