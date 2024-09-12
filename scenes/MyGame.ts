@@ -112,8 +112,13 @@ export default class MyGame extends Phaser.Scene {
                 right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             };
         }
-    }
     
+        // Disable the right-click context menu
+        this.sys.game.canvas.addEventListener('contextmenu', (event) => {
+            event.preventDefault(); // Prevent the default context menu
+        });
+    }
+            
     update(): void {
         if (this.isShooting) {
             const pointer = this.input.activePointer;
