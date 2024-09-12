@@ -6,6 +6,7 @@ export default class MyGame extends Phaser.Scene {
     private isShooting: boolean = false;
     private zoomScale: number = 1; // Initial zoom scale
     private grid!: Phaser.GameObjects.TileSprite;
+    private cursors?: Phaser.Types.Input.Keyboard.CursorKeys; // Optionally defined cursors
 
     constructor() {
         super({ key: 'MyGame' });
@@ -17,7 +18,6 @@ export default class MyGame extends Phaser.Scene {
     }
 
     create(): void {
-        // Create a canvas element to draw the grid
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         
@@ -26,10 +26,10 @@ export default class MyGame extends Phaser.Scene {
             return;
         }
     
-        const gridSize = 32; // Size of each grid square
-        const gridColor = '#b0b0b0'; // Softer color for the grid lines
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
+        const gridSize = 64; // Increased grid size
+        const gridColor = '#b0b0b0'; // Softer grid color
+        const width = this.cameras.main.width * 2; // Increased map width
+        const height = this.cameras.main.height * 2; // Increased map height
     
         canvas.width = width;
         canvas.height = height;
@@ -49,28 +49,40 @@ export default class MyGame extends Phaser.Scene {
             context.lineTo(width, y);
         }
     
-        context.stroke(); // Actually draw the lines on the canvas
+        context.stroke();
     
-        // Generate a texture from the canvas
         const textureKey = 'grid';
         this.textures.addCanvas(textureKey, canvas);
     
-        // Create a TileSprite with the grid texture
         this.grid = this.add.tileSprite(0, 0, width, height, textureKey)
             .setOrigin(0, 0);
     
-        // Set background color
-        this.cameras.main.backgroundColor.setTo(200, 200, 210); // Soft blue-gray background color
+        this.cameras.main.backgroundColor.setTo(200, 200, 210);
     
+        // Set camera bounds and size
+        this.cameras.main.setBounds(0, 0, width, height);
+        this.cameras.main.setZoom(this.zoomScale);
+        
         // Add player and bullets
         this.player = this.physics.add.sprite(400, 300, 'player');
         this.player.setCollideWorldBounds(true);
-    
+
+        // Set player bounds based on camera bounds
+        this.physics.world.setBounds(0, 0, width, height);
+
         this.bullets = this.physics.add.group({
             defaultKey: 'bullet',
             maxSize: 10
         });
-    
+
+        // Add player to the camera
+        this.cameras.main.startFollow(this.player, true, 0.5, 0.5);
+
+        // Draw deadline corner line
+        this.add.rectangle(width - 5, height - 5, 10, 10, 0xff0000, 1)
+            .setOrigin(1, 1);
+
+        // Set up input events
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             if (pointer.rightButtonDown()) {
                 this.isShooting = true;
@@ -85,24 +97,37 @@ export default class MyGame extends Phaser.Scene {
         });
     
         this.input.on('wheel', this.handleMouseWheel, this);
-    
-        // Make the camera follow the player
-        this.cameras.main.startFollow(this.player, true, 0.5, 0.5); // Adjust smoothing parameters
-    
-        // Set camera bounds to prevent jitter
-        this.cameras.main.setBounds(0, 0, this.cameras.main.width, this.cameras.main.height);
+
+        // Initialize cursor keys
+this.cursors = this.input.keyboard?.createCursorKeys();
+        // Check if cursors is defined before accessing it
     }
-    
+        
     update(): void {
         if (this.isShooting) {
             const pointer = this.input.activePointer;
             this.shootBullet(pointer);
         }
 
-        if (this.input.activePointer.isDown) {
-            this.physics.moveTo(this.player, this.input.x, this.input.y, 240);
-        } else {
-            this.player.setVelocity(0);
+        if (this.cursors) {
+            const speed = 200; // Movement speed
+    
+            // Move player with arrow keys
+            if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-speed);
+            } else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(speed);
+            } else {
+                this.player.setVelocityX(0);
+            }
+    
+            if (this.cursors.up.isDown) {
+                this.player.setVelocityY(-speed);
+            } else if (this.cursors.down.isDown) {
+                this.player.setVelocityY(speed);
+            } else {
+                this.player.setVelocityY(0);
+            }
         }
     }
 
