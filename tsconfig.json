@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "scenes/Grid.ts"]
+  "include": ["src", "src/Grid.ts"]
 }

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import BootScene from '/home/aliva/Desktop/projects/future-game/scenes/BootScene';
-import MyGame from '/home/aliva/Desktop/projects/future-game/scenes/MyGame';
+import BootScene from './BootScene';
+import MyGame from './MyGame';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,

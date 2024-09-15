@@ -1,8 +1,14 @@
-// src/MyGame.ts
 import Phaser from 'phaser';
 import Player from './Player';
 import Bullets from './Bullets';
 import Grid from './Grid';
+
+// Define the PlayerMovementData type here
+interface PlayerMovementData {
+    x: number;
+    y: number;
+    playerId: string; // Adjust according to your needs
+}
 
 export default class MyGame extends Phaser.Scene {
     private player!: Player;
@@ -66,6 +72,13 @@ export default class MyGame extends Phaser.Scene {
 
         this.sys.game.canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
+        });
+
+        // Example of setting up socket.io (assuming it's set up elsewhere)
+        const socket = io(); // Ensure `io` is defined somewhere in your code
+        socket.on('playerMovement', (data: PlayerMovementData) => {
+            // Handle player movement
+            console.log(data); // Example usage
         });
     }
 
