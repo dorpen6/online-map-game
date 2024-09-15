@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import BootScene from './BootScene';
 import MyGame from './MyGame';
+import MenuScene from './MenuScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -13,13 +13,13 @@ const config: Phaser.Types.Core.GameConfig = {
             debug: false
         }
     },
-    scene: [BootScene, MyGame], // Only include the BootScene and MyGame
+    scene: [MenuScene, MyGame], // Include MenuScene and MyGame
     scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     input: {
-        // No 'active' property here
+        // Input settings
     }
 };
 

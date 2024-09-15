@@ -1,4 +1,3 @@
-// src/Grid.ts
 import Phaser from 'phaser';
 
 export default class Grid {

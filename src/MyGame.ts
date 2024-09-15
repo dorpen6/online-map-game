@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Player from './Player';
 import Bullets from './Bullets';
 import Grid from './Grid';
+import io from 'socket.io-client'; // Correct import
 
 // Define the PlayerMovementData type here
 interface PlayerMovementData {
@@ -74,8 +75,8 @@ export default class MyGame extends Phaser.Scene {
             event.preventDefault();
         });
 
-        // Example of setting up socket.io (assuming it's set up elsewhere)
-        const socket = io(); // Ensure `io` is defined somewhere in your code
+        // Example of setting up socket.io
+        const socket = io(); // Create a socket instance
         socket.on('playerMovement', (data: PlayerMovementData) => {
             // Handle player movement
             console.log(data); // Example usage

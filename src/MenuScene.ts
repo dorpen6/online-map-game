@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import io from 'socket.io-client'; // Ensure socket.io-client is installed
 
 export default class MenuScene extends Phaser.Scene {
     private serverInput!: HTMLInputElement;
@@ -13,13 +14,9 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     create(): void {
-        // Create text for instructions
         this.add.text(100, 50, 'Enter Server URL:', { fontSize: '24px', color: '#fff' });
-
-        // Create input field and button using plain HTML
         this.createHTMLUI();
 
-        // Set up the button click event
         this.connectButton.addEventListener('click', () => {
             const serverURL = this.serverInput.value;
             if (serverURL) {
@@ -29,7 +26,6 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     private createHTMLUI(): void {
-        // Create an input field and button in the DOM
         const container = document.createElement('div');
         container.style.position = 'absolute';
         container.style.top = '100px';
